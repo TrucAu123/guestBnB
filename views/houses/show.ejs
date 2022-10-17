@@ -1,0 +1,72 @@
+<% layout('layouts/boilerplate')  %> 
+<div class="row">
+    <div class="col-md-6">
+        <div id="houseCarousel" class="carousel slide mt-3" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <% house.image.forEach((img, i) =>{%>
+              <div class="carousel-item <%= i === 0? 'active' :''  %> ">
+                <img src="<%= img.url %>" class="d-block w-100" alt="">
+              </div>
+              <% }) %>
+            </div>
+            <% if(house.image.length >1){ %> 
+            <button class="carousel-control-prev" type="button" data-bs-target="#houseCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#houseCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+            <% } %> 
+        </div>
+        <div class="card mt-3" style="width: 25rem;">
+            <div class="card-body">
+                <h5 class="card-title"><%=house.title %></h5>
+                <p class="card-text"><%= house.description %></p>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item text-muted"><%=house.location %></li>
+                <li class="list-group-item">Price: $<%=house.price %>/night</li>
+                <li class="list-group-item">Created by <%=house.user.username %></li>
+            </ul>
+            <div class="card-body">
+                <% if(currentUser &&house.user.equals(currentUser._id)){ %> 
+                <a href="/houses/<%=house._id%>/edit" class="btn btn-primary">Edit</a>
+                <form action="/houses/<%=house._id%>?_method=DELETE" method="POST" class="d-inline">
+                    <button class="btn btn-danger ">Delete</button>
+                </form>
+                <% } %> 
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mt-3">
+        <h2 class="text-center">Leave a review</h2>
+        <form action="/houses/reviews/<%=house._id%>" method="POST">
+            <div class="mb-3">
+                <label class="form-label" for="rating">Rating</label>
+                <input type="range"class="form-range" min="1" max="5" id="rating" name="rating">
+            </div>
+            <div class="mb-3">
+                <textarea class="form-control" name="body" rows="5" cols="30"></textarea>
+            </div>
+            <button class="btn btn-success">Add a review</button>
+        </form>
+        <% if(house.reviews){ %> 
+            <% for(let review of house.reviews){ %> 
+                <div class="card w-75 mt-3">
+                    <div class="card-body">
+                    <h5 class="card-title">Rating:<%=review.rating%>/5 </h5>
+                    <p class="card-text"><%=review.body%></p> 
+                    <% if(currentUser && review.user.equals(currentUser._id)){ %> 
+                    <form action="/houses/reviews/<%= house._id %>/<%= review._id %>?_method=DELETE" method="POST">
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                    <% } %> 
+                    </div>
+                </div>
+            <% } %> 
+        <% } %> 
+    </div>
+</div>
+    

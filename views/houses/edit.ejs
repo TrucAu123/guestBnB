@@ -1,0 +1,41 @@
+<% layout('layouts/boilerplate')  %> 
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <h1 class="text-center">Edit Guest House</h1>
+        <form action="/houses/<%=house._id%>?_method=PUT" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" id="title" name="title" value="<%=house.title%>" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="location"class="form-label">Location</label>
+                <input type="text" id="location" name="location"value="<%=house.location%>"class="form-control" required>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" aria-label="Amount (to the nearest dollar)" name="price" value="<%=house.price%>" required>
+                <span class="input-group-text">.00</span>
+              </div>
+            <div class="mb-3">
+                <label for="description"class="form-label">Description</label>
+                <textarea rows="3" cols="20" id="description" name="description"class="form-control" required><%=house.description%></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="image" class="form-label">Add image(s)</label>
+                <input class="form-control" type="file" id="image" name="image" multiple>
+            </div>
+            <div class="mb-3">
+                <% for(let i =0; i< house.image.length; i++){ %> 
+                    <img src ="<%=house.image[i].thumbnail%>" alt="">
+                    <div class="form-check-inline">
+                        <input type="checkbox" id="<%=i%> " name="deleteImages[]" value="<%=house.image[i].filename%>">
+                    </div>
+                    <label for="<%=i%>">Delete?</label>
+                <% } %> 
+            </div>
+            <button class="btn btn-success">Edit guest house</button>
+        </form>
+        <a class ="btn btn-primary btn-sm mt-3" href = "/houses/<%=house._id%>">Back to guest house</a>
+    </div>
+</div>
