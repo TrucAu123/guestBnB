@@ -1,0 +1,15 @@
+body{
+    background-color: #386641;
+}
+h1{
+    color:#6a994e;
+    text-decoration: underline;
+}
+.formAuth{
+    border:5px outset hsl(43, 57%, 88%);
+    padding:20px;
+    border-radius:12px;
+}
+.form-label{
+    color:#f2e8cf
+}

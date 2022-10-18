@@ -15,25 +15,39 @@ const flash = require('connect-flash');
 const User= require('./models/user');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const mongoSanitize = require('express-mongo-sanitize');
+const MongoStore = require('connect-mongo');
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/houseApp')
-    .then(()=>{
-        console.log('Connection open!')
-    })
-    .catch((err)=>{
-        console.log(err)
-    })
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/houseApp';
+mongoose.connect(dbUrl);   
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => {
+    console.log("Database connected");
+});
 
 app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views',path.join(__dirname,'views'));
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(mongoSanitize({
+    replaceWith:'_'
+}));
 app.use(methodOverride('_method'));
 app.use(express.urlencoded({extended:true}));
+const secret = process.env.SECRET ||'thisshouldbebettersecret!'
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    secret,
+    touchAfter: 24*3600,
+})
+store.on("error",function(e){
+    console.log('session store error',e)
+});
 app.use(session({
     name:'session',
-    secret: 'thisshouldbebettersecret!',
+    secret,
     resave: false,
     saveUninitialized: true,
     cookie:{
@@ -41,7 +55,8 @@ app.use(session({
         // secure:true, //cookie only can change when access through http
         expires: Date.now()+ 1000*60*60*24*7, //expire a week from now
         maxAge:1000*60*60*24*7
-    }
+    },
+    store:store,
 }))
 app.use(passport.initialize());
 app.use(passport.session()); // make sure session use before passport.session
@@ -60,7 +75,7 @@ app.use((req,res,next)=>{
 
 
 app.get('/', (req,res)=>{
-    res.send('Home page')
+    res.render('home');
 })
 
 app.use('/houses', houseRoutes);
@@ -75,6 +90,7 @@ app.use((err,req,res,next)=>{
     res.status(statusCode).render('error',{err});
     
 })
-app.listen(3000,()=>{
-    console.log('Listen on port 3000')
+const port = process.env.PORT || 3000;
+app.listen(port,()=>{
+    console.log('Listen on port ',port)
 })
